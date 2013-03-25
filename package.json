@@ -1,0 +1,16 @@
+{
+    "name":"injector",
+    "version":"0.0.1",
+    "main":"./lib/injector",
+    "dependencies":{
+        "underscore":"latest"
+    },
+    "devDependencies": {
+        "mocha":"latest",
+        "should":"latest"
+    },
+    "scripts":{
+        "test":"mocha test -r should --growl --reporter spec"
+    }
+
+}
