@@ -1,7 +1,7 @@
 {
-    "name":"injector",
+    "name":"nject",
     "version":"0.0.1",
-    "main":"./lib/injector",
+    "main":"./lib/nject",
     "dependencies":{
         "underscore":"latest"
     },
