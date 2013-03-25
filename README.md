@@ -90,5 +90,79 @@ nject.config({
 ```
 
  - You should run nject.config BEFORE you use your modules.  Dependency injection occurs at the time that you call nject.config(), so it should happen very early in your application's lifecycle. If you try to use your module before its dependencies are injected, it's going to have issues!
- - Nested dependencies? No problem.  Because Nject simply hands references between your modules, dependency trees or circular dependencies are not a problem. 
- - Why all the dollar signs? For convention. The dollar signs are not required, and as long as your $inject arguments match your registered dependencies you are good to go. However as a convention, `$variableName` allows you to easily recognize injected variables.
+
+## Random stuff
+
+### Nested dependencies?
+
+No problem.  Because Nject simply hands references between your modules, dependency trees or circular dependencies are not an issue *as long as you do injection before you use your modules*. 
+
+### Why all the dollar signs? 
+
+For convention. The dollar sign on the $inject method is 1) consistent with angular js and 2) hopefully prevents conflicts on your modules. In injected variables, the dollar signs are not required and as long as your `exports.$inject(...)` arguments match your registered dependencies you are good to go. However as a convention, `$variableName` allows you to easily recognize injected variables.
+
+### My module exports a function, not an object.
+
+That's fine. It ends up being slightly less pretty since you will have to attach your $inject method after `module.exports = ...`
+
+```javascript
+var dep1;
+
+module.exports = function(){
+  //...
+}
+
+module.exports.$inject = function($dep1){
+  dep1 = $dep1;  
+}
+```
+
+### Defaults 
+
+If you want functional defaults, or are comfortable with hardwiring your dependencies in production, you can actually skip nject's config altogether for production, and just use DI for testing.
+
+```jasvascript
+var dep1 = require('./dependency1);
+
+exports.$inject = function($dep1){
+  dep1 = $dep1;
+}
+```
+
+You now have the ability to do DI, but if you never run `nject.config()` your module is still functional.
+
+### Testing
+
+How do I take advantage of Nject for testing? Either...
+
+ - Use a custom nject.config() as part of your testing setup, registering mock objects for your dependencies or...
+
+```javascript
+//as part of testing spec setup...
+
+nject.config({
+  process: ['./myModule'],
+  dependencies: {
+    '$hello': {/*mock object...*/},
+    '$world': {/*mock object...*/}
+  },
+  baseDir: __dirname
+})
+```
+
+ - Require and manually invoke $inject on your modules in tests.
+
+```javascript
+var myModule = require('./myModule');
+
+describe('my module', function(){
+  
+  beforeEach(function(){
+    myModule.$inject({/*mock object...*/}, {/*mock object...*/});
+  });
+  
+  //...
+  
+})
+
+```
