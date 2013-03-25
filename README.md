@@ -91,3 +91,4 @@ nject.config({
 
  - You should run nject.config BEFORE you use your modules.  Dependency injection occurs at the time that you call nject.config(), so it should happen very early in your application's lifecycle. If you try to use your module before its dependencies are injected, it's going to have issues!
  - Nested dependencies? No problem.  Because Nject simply hands references between your modules, dependency trees or circular dependencies are not a problem. 
+ - Why all the dollar signs? For convention. The dollar signs are not required, and as long as your $inject arguments match your registered dependencies you are good to go. However as a convention, `$variableName` allows you to easily recognize injected variables.
