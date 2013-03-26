@@ -71,6 +71,38 @@ describe('injector', function () {
             //no errors were thrown
         });
 
+        it('requires global modules', function(){
+            nject.config({
+                "process":[
+                    "./"
+                ],
+                "dependencies":{
+                    "$hello":"./testCases/dependencies/frenchHello",
+                    "$world":"./testCases/dependencies/frenchWorld",
+                    "$underscore":"underscore"
+                }
+            }, __dirname);
+
+            mod.underscore().should.equal(require('underscore'));
+        });
+
+        it('accepts objects directly', function(){
+            var injectedObject = {};
+
+            nject.config({
+                "process":[
+                    "./"
+                ],
+                "dependencies":{
+                    "$hello":"./testCases/dependencies/frenchHello",
+                    "$world":"./testCases/dependencies/frenchWorld",
+                    "$underscore":injectedObject
+                }
+            }, __dirname);
+
+            mod.underscore().should.equal(injectedObject);
+        });
+
         it('works with my json file', function(){
             nject.config(require('./testCases/nject.json'), path.resolve(__dirname, './testCases'));
 
