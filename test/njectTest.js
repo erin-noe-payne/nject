@@ -1,7 +1,6 @@
 var nject = require('../'),
     should = require('should'),
-    path = require('path'),
-    mod = require('./testCases/aiModule');
+    path = require('path');
 
 describe('nject', function () {
 
