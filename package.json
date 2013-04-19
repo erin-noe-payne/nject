@@ -1,16 +1,16 @@
 {
-    "name":"nject",
-    "version":"0.0.1",
-    "main":"./lib/nject",
-    "dependencies":{
-        "underscore":"latest"
-    },
-    "devDependencies": {
-        "mocha":"latest",
-        "should":"latest"
-    },
-    "scripts":{
-        "test":"mocha test -r should --growl --reporter spec"
-    }
-
+  "name": "nject",
+  "version": "0.0.1",
+  "main": "./lib/nject",
+  "dependencies": {
+    "underscore": "~1.4.4"
+  },
+  "devDependencies": {
+      "sinon": "~1.6.0",
+      "mocha": "~1.9.0",
+      "should": "~1.2.2"
+  },
+  "scripts": {
+    "test": "mocha test -r should --growl --reporter spec"
+  }
 }
