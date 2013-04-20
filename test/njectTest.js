@@ -52,9 +52,9 @@ describe('nject', function () {
         nject.reset();
     });
 
-    describe('registerResolved', function () {
+    describe('constant', function () {
         it('works', function () {
-            nject.registerResolved('config', config);
+            nject.constant('config', config);
         });
     });
 
@@ -84,7 +84,7 @@ describe('nject', function () {
         })
 
         it('works with a stats dependency', function () {
-            nject.registerResolved('config', config);
+            nject.constant('config', config);
             nject.register('dep1', dep1, 'dep1');
             nject.resolve();
 
@@ -93,8 +93,8 @@ describe('nject', function () {
         });
 
         it('works with 2 stats dependencies', function () {
-            nject.registerResolved('config', config);
-            nject.registerResolved('stats', stats);
+            nject.constant('config', config);
+            nject.constant('stats', stats);
             nject.register('dep1', dep1, 'dep1');
             nject.register('dep2', dep2, 'dep2');
 
@@ -108,8 +108,8 @@ describe('nject', function () {
         });
 
         it('works with 2 resolved dependencies', function () {
-            nject.registerResolved('config', config);
-            nject.registerResolved('stats', stats);
+            nject.constant('config', config);
+            nject.constant('stats', stats);
             nject.register('dep1', dep1, 'dep1');
             nject.register('dep2', dep2, 'dep2');
             nject.register('dep3', dep3, 'dep3');
@@ -123,8 +123,8 @@ describe('nject', function () {
         });
 
         it('works with complex dependency trees', function () {
-            nject.registerResolved('config', config);
-            nject.registerResolved('stats', stats);
+            nject.constant('config', config);
+            nject.constant('stats', stats);
             nject.register('dep1', dep1, 'dep1');
             nject.register('dep2', dep2, 'dep2');
             nject.register('dep3', dep3, 'dep3');
