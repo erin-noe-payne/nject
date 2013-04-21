@@ -37,10 +37,10 @@ nject.resolve();
 
 ### nject.register(key, fn, [identifier])
 
- - key String registered dependency name
- - fn Function the DI function for this module. **Variable names matter.** The variable name for each argument in the function should correspond to a dependency or constant that will be registered with nject. If not, nject will throw an error at resolution time. The return value of the function is what will be injected in the case of other modules listing this module as a dependency.
- - identifier String An identifier string for error messaging. In the case of naming conflicts, undefined dependencies or circular dependencies, the identifier will be referenced to help give context. Defaults to key.
+ - **key** String registered dependency name
+ - **fn** Function the DI function for this module. **Variable names matter.** The variable name for each argument in the function should correspond to a dependency or constant that will be registered with nject. If not, nject will throw an error at resolution time. The return value of the function is what will be injected in the case of other modules listing this module as a dependency.
+ - **identifier** String An identifier string for error messaging. In the case of naming conflicts, undefined dependencies or circular dependencies, the identifier will be referenced to help give context. Defaults to key.
 
- ### nject.resolve()
+### nject.resolve()
 
-  - Resolves the dependency tree and invokes the registered functions in the order needed to make sure each function gets all dependencies needed.
+ - Resolves the dependency tree and invokes the registered functions in the order needed to make sure each function gets all dependencies needed.
