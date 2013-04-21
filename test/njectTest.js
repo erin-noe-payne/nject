@@ -42,6 +42,7 @@ describe('nject', function () {
 
     var circ1 = function(circ2) {}
     var circ2 = function(circ1) {}
+    var blocked1 = function(circ1){}
 
     function reset() {
         dep1Args = false;
@@ -138,6 +139,7 @@ describe('nject', function () {
         });
 
         it('throws an error on circular dependencies', function(){
+            nject.register('blocked1', blocked1, 'blocked1');
             nject.register('circ1', circ1, 'circ1');
             nject.register('circ2', circ2, 'circ2');
 
