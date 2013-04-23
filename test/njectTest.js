@@ -4,6 +4,8 @@ var nject = require('../'),
 
 describe('nject', function () {
 
+    var tree;
+
     var config = {
         db:'mongodb://user:password@server:123456',
         timeout:1000
@@ -49,13 +51,13 @@ describe('nject', function () {
         dep2Args = false;
     }
 
-    afterEach(function () {
-        nject.reset();
-    });
+    beforeEach(function(){
+        tree = new nject.Tree();
+    })
 
     describe('constant', function () {
         it('works', function () {
-            nject.constant('config', config);
+            tree.constant('config', config);
         });
     });
 
@@ -63,8 +65,8 @@ describe('nject', function () {
 
         it('Throws an error if you register the same name twice', function () {
             function doubleRegister() {
-                nject.register('fn1', fn1);
-                nject.register('fn1', fn1);
+                tree.register('fn1', fn1);
+                tree.register('fn1', fn1);
             }
 
             doubleRegister.should.throw();
@@ -75,31 +77,31 @@ describe('nject', function () {
     describe('resolve', function () {
 
         it('throws an error if you have an unregistered dependency', function(){
-            nject.register('badDep', badDep);
+            tree.register('badDep', badDep);
 
             function doResolve(){
-                nject.resolve();
+                tree.resolve();
             }
 
             doResolve.should.throw()
         })
 
         it('works with a stats dependency', function () {
-            nject.constant('config', config);
-            nject.register('dep1', dep1, 'dep1');
-            nject.resolve();
+            tree.constant('config', config);
+            tree.register('dep1', dep1, 'dep1');
+            tree.resolve();
 
             dep1Args.should.be.ok;
             dep1Args[0].should.equal(config);
         });
 
         it('works with 2 stats dependencies', function () {
-            nject.constant('config', config);
-            nject.constant('stats', stats);
-            nject.register('dep1', dep1, 'dep1');
-            nject.register('dep2', dep2, 'dep2');
+            tree.constant('config', config);
+            tree.constant('stats', stats);
+            tree.register('dep1', dep1, 'dep1');
+            tree.register('dep2', dep2, 'dep2');
 
-            nject.resolve();
+            tree.resolve();
 
             dep1Args.should.be.ok;
             dep1Args[0].should.equal(config);
@@ -109,13 +111,13 @@ describe('nject', function () {
         });
 
         it('works with 2 resolved dependencies', function () {
-            nject.constant('config', config);
-            nject.constant('stats', stats);
-            nject.register('dep1', dep1, 'dep1');
-            nject.register('dep2', dep2, 'dep2');
-            nject.register('dep3', dep3, 'dep3');
+            tree.constant('config', config);
+            tree.constant('stats', stats);
+            tree.register('dep1', dep1, 'dep1');
+            tree.register('dep2', dep2, 'dep2');
+            tree.register('dep3', dep3, 'dep3');
 
-            nject.resolve();
+            tree.resolve();
 
             dep3Args.should.be.ok;
             dep3Args[0].should.equal(2);
@@ -124,27 +126,27 @@ describe('nject', function () {
         });
 
         it('works with complex dependency trees', function () {
-            nject.constant('config', config);
-            nject.constant('stats', stats);
-            nject.register('dep1', dep1, 'dep1');
-            nject.register('dep2', dep2, 'dep2');
-            nject.register('dep3', dep3, 'dep3');
-            nject.register('dep4', dep4, 'dep4');
+            tree.constant('config', config);
+            tree.constant('stats', stats);
+            tree.register('dep1', dep1, 'dep1');
+            tree.register('dep2', dep2, 'dep2');
+            tree.register('dep3', dep3, 'dep3');
+            tree.register('dep4', dep4, 'dep4');
 
 
-            nject.resolve();
+            tree.resolve();
 
             dep4Args.should.be.ok;
             dep4Args[0].should.equal(3);
         });
 
         it('throws an error on circular dependencies', function(){
-            nject.register('blocked1', blocked1, 'blocked1');
-            nject.register('circ1', circ1, 'circ1');
-            nject.register('circ2', circ2, 'circ2');
+            tree.register('blocked1', blocked1, 'blocked1');
+            tree.register('circ1', circ1, 'circ1');
+            tree.register('circ2', circ2, 'circ2');
 
             function doResolve(){
-                nject.resolve();
+                tree.resolve();
             }
 
             doResolve.should.throw()
