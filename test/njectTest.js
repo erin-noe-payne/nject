@@ -152,6 +152,26 @@ describe('nject', function () {
             doResolve.should.throw()
         });
 
+        it('aggregates correctly', function(){
+            tree.constant('config', config);
+            tree.constant('stats', stats);
+            tree.register('dep1', dep1, {
+                aggregateOn: 'numbers',
+                identifier: 'dep1'
+            });
+            tree.register('dep2', dep2, {
+                aggregateOn: 'numbers',
+                identifier: 'dep2'
+            });
+            tree.register('dep3', function(numbers){
+                console.log(numbers);
+                numbers.dep1.should.equal(1);
+                numbers.dep2.should.equal(2);
+            });
+
+            tree.resolve();
+        });
+
     });
 
 
