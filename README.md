@@ -25,7 +25,7 @@ tree.register('printer',
     });
 
 tree.resolve();
-//54
+//63
 
 ```
 
