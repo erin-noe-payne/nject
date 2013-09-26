@@ -69,6 +69,11 @@ Constructs a new nject dependency tree.
 
     ```
 
+#### tree.isRegistered(key)
+
+ - **key** *String* Registered dependency key.
+ - returns *boolean* True / false if the key has been registered with the tree. 
+
  #### tree.resolve()
 
  - Resolves the dependency tree and invokes the registered functions in the order needed to make sure each function gets all dependencies needed.
