@@ -74,6 +74,26 @@ describe('nject', function () {
 
     });
 
+    describe('isRegistered', function(){
+
+        it('returns true for a registered constant', function(){
+            tree.constant('test', 7);
+            tree.isRegistered('test').should.equal(true);
+        });
+
+        it('returns true for a registered dependency', function(){
+            tree.register('test', function(){
+                return 7;
+            });
+            tree.isRegistered('test').should.equal(true);
+        });
+
+        it('returns false for an runegistered key', function(){
+            tree.isRegistered('test').should.equal(false);
+        })
+
+    })
+
     describe('resolve', function () {
 
         it('throws an error if you have an unregistered dependency', function(){
