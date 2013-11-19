@@ -290,9 +290,18 @@ describe('nject', function () {
         err.should.be.an.instanceOf(Error)
         done()
       });
-    })
-    it('_doneConstant can be changed on the tree object', function(done){
-      tree._doneConstant = 'next'
+    });
+    it('if timeout is < 0, resolution will never timeout', function(done){
+      tree.register('dep6', dep6)
+      tree._timeout = 0
+
+      tree.resolve(function(err, resolved){
+        resolved.dep6.should.equal(6)
+        done()
+      });
+    });
+    it('_asyncConstant can be changed on the tree object', function(done){
+      tree._asyncConstant = 'next'
       tree.register('dep8', dep8)
 
       tree.resolve(function(err, resolved){
