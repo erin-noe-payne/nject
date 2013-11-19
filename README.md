@@ -23,9 +23,7 @@ tree.register('product',
 
 tree.register('asyncProduct',
     /*
-    variable names matter!
-    a will be injected with nject's registered constant a
-    b will be injected with constant b
+    this module resolves asynchronously, because it is injected with the reserved word _done
     */
     function(a, _done) {
         setTimeout(function(){
@@ -59,17 +57,16 @@ tree.resolve(function(err, resolved){
 
 Constructs a new nject dependency tree.
 
+#### tree.prototype._timeout = 10000
+*number* Represents the timeout expiration for asynchronously resolved modules in ms. Default to 10 seconds. If set to a value <= 0, resolution will never time out.
+
+#### tree.prototype.\_asyncConstant = '_done'
+*String* The injectable key for asynchronous support. By default a module resolves synchronously to its return value. However, if a function receives the _asyncConstant as an injected dependency then it is resolved asynchronously.
+
 #### tree.constant(key, value)
 
  - **key** *String* Registered dependency key.
  - **value** * The value that will be injected for any module that requires this constant as a dependency.
-
-#### tree.prototype._timeout = 10000
-*number* Represents the timeout expiration for asynchronously resolved modules in ms. Default to 10 seconds. If set to a value <= 0, resolution will never time out.
-
-#### tree.prototype._asyncConstant = '_done'
-*String* The injectable key for asynchronous support. By default a module resolves synchronously to its return value. However, if a function receives the _asyncConstant as an injected dependency then it is resolved asynchronously.
-
 
 #### tree.register(key, fn, [opts])
 
@@ -107,7 +104,7 @@ Constructs a new nject dependency tree.
  - **key** *String* Registered dependency key.
  - returns *boolean* True / false if the key has been registered with the tree. 
 
- #### tree.resolve(callback)
+#### tree.resolve(callback)
 
 Resolves the dependency tree and invokes the registered functions in the order needed to make sure each function gets all dependencies needed.
  - **callback** *Function* `function(err, resolved)` Callback function. err represent any error passed by the executing dependencies. If there were no errors, resolved is an object whose keys are the keys of regsitered dependencies, and whose values are their resolved values.
