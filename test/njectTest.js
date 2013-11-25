@@ -223,6 +223,17 @@ describe('nject', function () {
             tree.resolve();
         });
 
+        it('fires the resolved event even when set after calling resolve', function(done){
+            tree.constant('config', config);
+            tree.register('dep1', dep1, 'dep1');
+            tree.resolve();
+            tree.on('resolved', function(resolved){
+                dep1Args.should.be.ok;
+                dep1Args[0].should.equal(config);
+                done();
+            });
+        });
+
         it('resolves correctly with two constant dependencies', function (done) {
             tree.constant('config', config);
             tree.constant('stats', stats);
