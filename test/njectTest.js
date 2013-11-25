@@ -181,8 +181,6 @@ describe('nject', function () {
     })
 
     describe('resolve', function () {
-        it('returns an event emitter')
-
         it('throws an error if you have an unregistered dependency', function () {
             tree.register('badDep', badDep);
 
@@ -377,9 +375,4 @@ describe('nject', function () {
             });
         });
     });
-
-    describe('specific resolution', function(){
-        it('given an argument, will resolve for the specified dependency')
-    })
-
 });
