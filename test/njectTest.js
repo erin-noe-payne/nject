@@ -181,6 +181,16 @@ describe('nject', function () {
     })
 
     describe('resolve', function () {
+        it('returns the tree', function(){
+            var returned = tree.resolve()
+            returned.should.equal(tree);
+        });
+
+        it('the tree is an event emitter', function(){
+            should.exist(tree.on)
+            tree.on.should.be.a('function');
+        });
+
         it('throws an error if you have an unregistered dependency', function () {
             tree.register('badDep', badDep);
 
@@ -189,7 +199,7 @@ describe('nject', function () {
             }
 
             doResolve.should.throw()
-        })
+        });
 
         it('resolves correctly with a single constant dependency', function (done) {
             tree.constant('config', config);
@@ -199,6 +209,18 @@ describe('nject', function () {
                 dep1Args[0].should.equal(config);
                 done()
             });
+        });
+
+        it('fires the resolved event when resolution is completed successfully', function(done){
+            tree.on('resolved', function(resolved){
+                dep1Args.should.be.ok;
+                dep1Args[0].should.equal(config);
+                done();
+            });
+
+            tree.constant('config', config);
+            tree.register('dep1', dep1, 'dep1');
+            tree.resolve();
         });
 
         it('resolves correctly with two constant dependencies', function (done) {
@@ -296,6 +318,7 @@ describe('nject', function () {
                 done()
             });
         });
+
         it("resolves to the callback's second argument, rather than return value", function (done) {
             tree.register('dep5', dep5)
             tree.register('dep6', function (dep5) {
@@ -324,6 +347,7 @@ describe('nject', function () {
                 done();
             })
         });
+
         it('throws an error if the resolution takes longer than timeout', function (done) {
             tree.register('dep6', dep6)
 
@@ -332,6 +356,7 @@ describe('nject', function () {
                 done()
             });
         });
+
         it('_timeout can be changed on the tree object', function (done) {
             tree.register('dep5', dep5)
             tree._timeout = 10
@@ -341,6 +366,7 @@ describe('nject', function () {
                 done()
             });
         });
+
         it('if timeout is < 0, resolution will never timeout', function (done) {
             tree.register('dep6', dep6)
             tree._timeout = 0
@@ -350,6 +376,7 @@ describe('nject', function () {
                 done()
             });
         });
+
         it('_asyncConstant can be changed on the tree object', function (done) {
             tree._asyncConstant = 'next'
             tree.register('dep8', dep8)
@@ -358,7 +385,8 @@ describe('nject', function () {
                 resolved.dep8.should.equal(8)
                 done()
             });
-        })
+        });
+
         it('will not continue to resolve dependencies if it breaks', function (done) {
             var gotCalled = false;
             tree.register('dep7', dep7);
@@ -374,5 +402,16 @@ describe('nject', function () {
                 }, 1000)
             });
         });
+
+        it('fires the error event if an error occurrs', function(done){
+            tree.on('error', function(err){
+                err.should.be.an.instanceOf(Error)
+                done();
+            });
+
+            tree.register('dep7', dep7);
+            tree.resolve()
+
+        })
     });
 });
