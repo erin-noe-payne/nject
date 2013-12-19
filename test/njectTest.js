@@ -435,7 +435,7 @@ describe('nject', function () {
     })
   });
 
-  describe.only('destroy', function () {
+  describe('destroy', function () {
     it('should emit a destroy event when invoked', function(done){
       tree.on('destroy', function(){
         done();
