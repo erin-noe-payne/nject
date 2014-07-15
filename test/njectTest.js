@@ -1,13 +1,12 @@
 var nject = require('../'),
-    should = require('should'),
-    path = require('path');
+  should = require('should');
 
 describe('nject', function () {
 
   var tree;
 
   var config = {
-    db: 'mongodb://user:password@server:123456',
+    db     : 'mongodb://user:password@server:123456',
     timeout: 1000
   }
   var stats = {
@@ -107,7 +106,7 @@ describe('nject', function () {
     it('given an object, registers each key value pair as a constant', function () {
       var constants = {
         config: config,
-        stats: stats
+        stats : stats
       }
 
       tree.constant(constants)
@@ -210,8 +209,8 @@ describe('nject', function () {
       });
     });
 
-    it('invokes registered dependencies with a this context of the tree', function(done){
-      var dep = function(){
+    it('invokes registered dependencies with a this context of the tree', function (done) {
+      var dep = function () {
         this.should.equal(tree)
         done()
       }
@@ -305,16 +304,16 @@ describe('nject', function () {
       doResolve.should.throw()
     });
 
-    it('aggregates correctly', function (done) {
+    it('aggreregates correctly', function (done) {
       tree.constant('config', config);
       tree.constant('stats', stats);
       tree.register('dep1', dep1, {
         aggregateOn: 'numbers',
-        identifier: 'dep1'
+        identifier : 'dep1'
       });
       tree.register('dep2', dep2, {
         aggregateOn: 'numbers',
-        identifier: 'dep2'
+        identifier : 'dep2'
       });
       tree.register('dep3', function (numbers) {
         numbers.dep1.should.equal(1);
@@ -324,6 +323,31 @@ describe('nject', function () {
       tree.resolve(function (err, resolved) {
         done()
       });
+    });
+
+    it('emits an error event when registering a constant after resolution has begun', function (done) {
+      tree.constant('config', config);
+      tree.register('dep1', dep1);
+
+      tree.resolve(function (err) {
+        err.should.be.an.instanceOf(Error)
+        done()
+      })
+
+      tree.constant('stats', stats)
+    });
+
+    it('emits an error event when registering a module after resolution has begun', function (done) {
+      tree.constant('config', config);
+      tree.constant('stats', stats);
+      tree.register('dep1', dep1);
+
+      tree.resolve(function (err) {
+        err.should.be.an.instanceOf(Error)
+        done()
+      })
+
+      tree.register('dep2', dep2)
     });
   });
 
@@ -350,6 +374,7 @@ describe('nject', function () {
         done()
       });
     });
+
     it('the resolve callback receives the resolved object', function (done) {
       tree.register('dep5', dep5)
       tree.register('dep6', function (dep5) {
@@ -432,47 +457,59 @@ describe('nject', function () {
       tree.register('dep7', dep7);
       tree.resolve()
 
+    });
+
+    it('throws an error if a module attempts to register to the tree', function (done) {
+
+      tree.register('badFunction', function () {
+        this.constant('config', config)
+      });
+
+      tree.resolve(function (err) {
+        err.should.be.an.instanceOf(Error)
+        done()
+      })
     })
   });
 
   describe('destroy', function () {
-    it('should emit a destroy event when invoked', function(done){
-      tree.on('destroy', function(){
+    it('should emit a destroy event when invoked', function (done) {
+      tree.on('destroy', function () {
         done();
       });
 
       tree.destroy();
     });
 
-    it('should emit a destroyed event when destruction is complete', function(done){
+    it('should emit a destroyed event when destruction is complete', function (done) {
       tree.on('destroyed', done)
       tree.destroy()
     });
 
-    it('should take a callback and register that callback as a listener for the destroyed event', function(done){
+    it('should take a callback and register that callback as a listener for the destroyed event', function (done) {
       tree.destroy(done)
     });
 
-    it('should pass any errors from a destroy handler to the destroyed callback as the first argument', function(done){
+    it('should pass any errors from a destroy handler to the destroyed callback as the first argument', function (done) {
       var err = new Error('HALP')
-      tree.on('destroy', function(cb){
+      tree.on('destroy', function (cb) {
         cb(err)
       });
 
-      tree.destroy(function(e){
+      tree.destroy(function (e) {
         should.exist(e);
         e.should.equal(err);
         done();
       });
     });
 
-    it('should emit an error event if any of the destroy handlers pass an error', function(done){
+    it('should emit an error event if any of the destroy handlers pass an error', function (done) {
       var err = new Error('HALP')
-      tree.on('destroy', function(cb){
+      tree.on('destroy', function (cb) {
         cb(err)
       });
 
-      tree.on('error', function(e){
+      tree.on('error', function (e) {
         should.exist(e);
         e.should.equal(err);
         done();
@@ -482,16 +519,18 @@ describe('nject', function () {
     });
 
 
-//    it('should emit a pre-flight destroy event?')
-    it('should self destruct if there are no registered destroy event listeners', function(done){
+    it('should self destruct if there are no registered destroy event listeners', function (done) {
       tree.destroy(done)
     });
 
-    it('should remove all event listeners when it self destructs', function(done){
-      tree.on('resolved', function(){})
-      tree.on('resolved', function(){})
-      tree.on('destroy', function(){})
-      tree.on('destroyed', function(){
+    it('should remove all event listeners when it self destructs', function (done) {
+      tree.on('resolved', function () {
+      })
+      tree.on('resolved', function () {
+      })
+      tree.on('destroy', function () {
+      })
+      tree.on('destroyed', function () {
         tree.listeners('resolved').length.should.equal(0)
         tree.listeners('destroy').length.should.equal(0)
         tree.listeners('destroyed').length.should.equal(0)
@@ -501,101 +540,102 @@ describe('nject', function () {
       tree.destroy();
     });
 
-    it('should empty its registry when it self destructs', function(done){
+    it('should empty its registry when it self destructs', function (done) {
       tree.constant('a', 1)
       tree.constant('b', 2)
-      tree.register('c', function(a,b){
+      tree.register('c', function (a, b) {
 
       });
 
       tree._registry.should.not.eql({})
-      tree.destroy(function(){
+      tree.destroy(function () {
         tree._registry.should.eql({})
         done();
       })
     });
 
-    it('should empty its resolved object when it self destructs', function(done){
+    it('should empty its resolved object when it self destructs', function (done) {
       tree.constant('a', 1)
       tree.constant('b', 2)
-      tree.register('c', function(a,b){
+      tree.register('c', function (a, b) {
 
       });
 
-      tree.resolve(function(){
+      tree.resolve(function () {
         tree._resolved.should.not.eql({})
-        tree.destroy(function(){
+        tree.destroy(function () {
           tree._resolved.should.eql({})
           done();
         });
       });
     });
 
-    it('should wait for all destroy event listeners with arity > 0', function(done){
-      var i=0
-      tree.on('destroy', function(cb){
-        setTimeout(function(){
+    it('should wait for all destroy event listeners with arity > 0', function (done) {
+      var i = 0
+      tree.on('destroy', function (cb) {
+        setTimeout(function () {
           i++;
           cb();
         }, 20)
       });
-      tree.on('destroy', function(cb){
-        setTimeout(function(){
+      tree.on('destroy', function (cb) {
+        setTimeout(function () {
           i++;
           cb();
         }, 20)
       });
-      tree.destroy(function(){
+      tree.destroy(function () {
         i.should.equal(2)
         done()
       });
     });
 
-    it('should not wait for any destroy event listeners with arity of 0', function(done){
-      var i=0
-      tree.on('destroy', function(){
-        setTimeout(function(){
+    it('should not wait for any destroy event listeners with arity of 0', function (done) {
+      var i = 0
+      tree.on('destroy', function () {
+        setTimeout(function () {
           i++;
         }, 20)
       });
-      tree.on('destroy', function(){
-        setTimeout(function(){
+      tree.on('destroy', function () {
+        setTimeout(function () {
           i++;
         }, 20)
       });
-      tree.destroy(function(){
+      tree.destroy(function () {
         i.should.equal(0)
         done()
       });
     });
 
-    it('should timeout if a destroy event listener takes too long to complete', function(done){
+    it('should timeout if a destroy event listener takes too long to complete', function (done) {
       tree._destroyTimeout = 50
 
-      tree.on('destroy', function(cb){
-        setTimeout(function(){}, 60)
+      tree.on('destroy', function (cb) {
+        setTimeout(function () {
+        }, 60)
       });
 
-      tree.destroy(function(err){
+      tree.destroy(function (err) {
         should.exist(err);
         err.should.be.an.Error
         done();
       });
     });
 
-    it('should not fire an error event more than once if there are multiple cleanup errors', function(done){
-      var i=0;
-      tree.on('destroy', function(cb){
+    it('should not fire an error event more than once if there are multiple cleanup errors', function (done) {
+      var i = 0;
+      tree.on('destroy', function (cb) {
         cb(new Error('AHHH'))
       });
 
-      tree.on('destroy', function(cb){
+      tree.on('destroy', function (cb) {
         cb(new Error('OHNOES'))
       });
 
-      tree.on('error', function(){
+      tree.on('error', function () {
         i++
-        setTimeout(function(){
+        setTimeout(function () {
           i.should.equal(1);
           done();
         }, 10)

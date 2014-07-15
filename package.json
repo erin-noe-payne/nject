@@ -2,6 +2,7 @@
   "name": "nject",
   "version": "1.2.0",
   "main": "./lib/nject",
+  "repository":"https://github.com/autoric/nject",
   "engines": {
     "node": ">= 0.10.0"
   },
