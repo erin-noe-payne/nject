@@ -1,7 +1,5 @@
 #Nject
 
-## 1.0 release - asynchronous resolution is introduced!
-
 Nject is a simple nodejs library for handling dependency tree resolution and injection, inspired by angularjs's DI system. It 'magically' maps variable names to registered dependencies at time of injection. It supports synchronous or asynchronous resolution. Here's how it looks...
 
 ```javascript
@@ -57,14 +55,18 @@ tree.resolve(function(err, resolved){
 
 Constructs a new nject dependency tree.
 
-#### tree.prototype._timeout = 10000
-*number* Represents the timeout expiration for asynchronously resolved modules in ms. Default to 10 seconds. If set to a value <= 0, resolution will never time out.
-
 #### tree.prototype._asyncConstant = '_done'
 *String* The injectable key for asynchronous support. By default a module resolves synchronously to its return value. However, if a function receives the _asyncConstant as an injected dependency then it is resolved asynchronously.
 
+#### tree.prototype._asyncTimeout = 10000
+*number* Represents the timeout expiration for asynchronously resolved modules in ms. Default to 10 seconds. If set to a value <= 0, resolution will never time out.
+
+#### tree.prototype._destroyTimeout = 10000
+*number* Represents the timeout expiration for asynchronously resolved destroy handlers. Default to 10 seconds.
+
 #### tree.constant(key, value)
 
+Registers a constant with the tree, which does not need to be dynamically resolved.
  - **key** *String* || *object* If a string, key is the registered dependency key. If an object, tree.constant is invoked with each key / value pair of the object.
  - **value** * The value that will be injected for any module that requires this constant as a dependency.
 
@@ -78,8 +80,9 @@ Constructs a new nject dependency tree.
 
 #### tree.register(key, fn, [opts])
 
+Registers a dynamically resolved dependency with the tree.
  - **key** *String* || *object* If a string, key is the registered dependency key. If an object, tree.register is invoked with each key / value pair of the object. Note that if you use the object shorthand, you are not able to pass the 3rd opts argument, and optional values are set to defaults.
- - **fn** *Function* The DI function for this module. **Variable names matter.** The variable name for each argument in the function should correspond to a dependency or constant that will be registered with nject. If not, nject will throw an error at resolution time. The function can be resolved synchronously or asynchronously, depending on if the _asyncConstant is injected.
+ - **fn** *Function* The DI function for this module. **Variable names matter.** The variable name for each argument in the function should correspond to a dependency or constant that will be registered with nject. If not, nject will throw an error at resolution time. The function can be resolved synchronously or asynchronously, depending on if the _asyncConstant is injected. The function is invoked with a `this` context of the tree instance.
    - Synchronous resolution: The module is resolved to the return value of the function. This will be injected in the case of other modules listing this module as a dependency.
    - Asynchronous resolution: If the module is injected with the _asyncConstant (by default '_done'), the module will be resolved asynchronously. `_done` is a callback function that conforms the nodejs standard, expecting to be called with an error and the resolution value: `_done(err, resolution)`. Unless there were errors, the module will be resolved to the passed resolution value.
  - [**opts**] *Object* || *String* Options object. If given a string, it is assumed to be the identifier option.
@@ -114,17 +117,45 @@ Constructs a new nject dependency tree.
 
 #### tree.resolve(callback)
 
-Resolves the dependency tree and invokes the registered functions in the order needed to make sure each function gets all dependencies needed.
- - **callback** *Function* `function(err, resolved)` Callback function. err represent any error passed by the executing dependencies. If there were no errors, resolved is an object whose keys are the keys of regsitered dependencies, and whose values are their resolved values.
+Resolves the dependency tree. Registered dependencies are dynamically resolved in the order necessary. If an error occurs during resolution, the tree will emit an `error` event. If no errors occur, the tree will emit a `resolved` event when resolution is complete.
+ - **callback** *Function* `function(err, resolved)` Callback function. The callback will receive any errors that occur during resolution. If there were no errors, resolved is an object whose keys are the keys of registered dependencies, and whose values are their resolved values. The callback function is optional, and is equivalent to registering the function for both the `error` and `resolved` events.
 
-### Events
+### tree.destroy(callback)
+
+Releases all event handlers for garbage collection and resets the tree to a pristine state. Also causes the tree to emit the `destroy` event. Registering handlers for this event allows for cleanup & disposal of any event handlers, timeouts, etc that were set up during resolution. The `destroy` event handlers may be completed synchronously or asynchronously. The `destroyed` event is emitted when destruction is complete.
+ - **callback** *Function* `function(){}` Callback that will be invoked when destruction is complete. Equivalent to registering the function as a handler for the `destroyed` event.
+
+## Events
 
 Tree is an event emitter, and supports the following events associated with resolution:
 
-## error
+### error
 `tree.on('error', function(err){})`
-Occurs when there is an error resolving the dependency tree - generally because of a timeout or an error during asynchronous resolution of a dependency. Note that errors which block resolution from beginning, such as naming conflicts, undeclared dependencies, or circular dependencies will be thrown by the resolve method rather than emit this event.
+Occurs when there is an error with the dependency tree. This may occur during resolution of the dependency tree or if there is an error during a `destroy` handler. The first error that occurs during resolution of a dependency tree will prevent resolution from completing or from further errors being emitted.
 
-## resolved
+### resolved
 `tree.on('resolved', function(resolved){})`
 Occurs when dependency tree resolution is complete. `resolved` is an object whose key / value pairs are the registered dependency keys and the resolved values of your tree.
+
+### destroy
+`tree.on('destroy', function (done){})`
+Emitted when `tree.destroy()` is called. Registering for this event allows for graceful shutdown and cleanup of event handlers / timeouts. If the event handler function has an arity of 0 (takes no arguments), the destroy handler is assumed to be synchronous. If it has an arity of 1, it is passed a done function and the handler is assumed to be asynchronous. Invoking the done function will indicate an error during destruction.
+
+All registered dependencies on the tree are invoked with a `this` context of the tree, allowing a dependency to register its own destroy handler for cleanup.
+
+```javascript
+tree.register('clock', function(){
+    i = 0;
+    interval = setInterval(function(){
+        console.log(i++);
+    }, 1000);
+
+    this.on('destroy', function(){
+        clearInterval(interval);
+    });
+})
+```
+
+### destroyed
+`tree.on('destroyed', function(){})`
+Emitted when destruction is complete. The tree is now in a pristine state, and all `destroy` event handlers have been called. The tree will emit a `destroyed` event even if errors occur during a `destroy` event handler.

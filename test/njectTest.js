@@ -490,19 +490,6 @@ describe('nject', function () {
       tree.destroy(done)
     });
 
-    it('should pass any errors from a destroy handler to the destroyed callback as the first argument', function (done) {
-      var err = new Error('HALP')
-      tree.on('destroy', function (cb) {
-        cb(err)
-      });
-
-      tree.destroy(function (e) {
-        should.exist(e);
-        e.should.equal(err);
-        done();
-      });
-    });
-
     it('should emit an error event if any of the destroy handlers pass an error', function (done) {
       var err = new Error('HALP')
       tree.on('destroy', function (cb) {
@@ -608,22 +595,35 @@ describe('nject', function () {
       });
     });
 
-    it('should timeout if a destroy event listener takes too long to complete', function (done) {
+    it('should emit an error if a destroy takes too long to complete', function (done) {
       tree._destroyTimeout = 50
 
       tree.on('destroy', function (cb) {
-        setTimeout(function () {
-        }, 60)
       });
 
-      tree.destroy(function (err) {
+      tree.on('error', function(err){
         should.exist(err);
         err.should.be.an.Error
         done();
       });
+
+      tree.destroy()
     });
 
-    it('should not fire an error event more than once if there are multiple cleanup errors', function (done) {
+    it('should complete destruction, even if a handler does not complete', function (done) {
+      tree._destroyTimeout = 50
+
+      tree.on('destroy', function (cb) {
+      });
+
+      tree.on('error', function(){})
+
+      tree.destroy(function () {
+        done();
+      });
+    });
+
+    it('should throw an error event for each cleanup error, and destruction should still complete', function (done) {
       var i = 0;
       tree.on('destroy', function (cb) {
         cb(new Error('AHHH'))
@@ -635,13 +635,12 @@ describe('nject', function () {
 
       tree.on('error', function () {
         i++
-        setTimeout(function () {
-          i.should.equal(1);
-          done();
-        }, 10)
       });
 
-      tree.destroy();
+      tree.destroy(function(){
+        i.should.equal(2)
+        done()
+      });
     });
   });
 });
