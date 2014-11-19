@@ -60,6 +60,36 @@ describe('nject', function () {
     }, 11000)
   }
 
+  /* Helper method that make defaults the saved arguments to dep6Args. */
+  var saveDepArgs = function(args) {
+    dep6Args = args
+  };
+
+  /**
+   * Generic curry of the dep timeout functions.  Partially applies
+   * the 2 parameters.
+   *
+   * @param ms {Number} -
+   *    how long to set a timeout, which when the timeout
+   *    fires, will call _done, and so resolve.
+   * @param saveArgs {Funciton} -
+   *    A function to call that will save off the arugments of passed to
+   *    the resolved function.  It defaults to saveDepArgs which saves
+   *    arguments to dep6Args.
+   * @returns {Function} -
+   *    A function with a _done parameter that will delay calling this
+   *    parameter after the specified timeout in ms.
+   */
+  var depTimeout = function(ms, saveArgs) {
+    return function(_done) {
+      saveArgs = saveArgs || saveDepArgs
+      saveArgs(arguments)
+      setTimeout(function () {
+        _done(null, 6)
+      }, ms || 11000)
+    }
+  };
+
   var dep7Args = false;
   var dep7 = function (_done) {
     dep7Args = arguments
@@ -78,7 +108,6 @@ describe('nject', function () {
 
   var badDep = function (asdf) {
   }
-
   var circ1 = function (circ2) {
   }
   var circ2 = function (circ1) {
@@ -175,6 +204,11 @@ describe('nject', function () {
     it('returns false for an unregistered key', function () {
       tree.isRegistered('test').should.equal(false);
     });
+
+    it('should return true if the registered key is a constant with value of false', function() {
+      tree.constant('falsy', false);
+      tree.isRegistered('falsy').should.equal(true);
+    })
 
   });
 
@@ -330,9 +364,9 @@ describe('nject', function () {
       tree.register('dep1', dep1);
 
       tree.resolve(function (err) {
-        err.should.be.an.instanceOf(Error)
+        err.should.be.an.instanceOf(Error);
         done()
-      })
+      });
 
       tree.constant('stats', stats)
     });
@@ -394,6 +428,7 @@ describe('nject', function () {
     });
 
     it('throws an error if the resolution takes longer than timeout', function (done) {
+      tree._asyncTimeout = 100
       tree.register('dep6', dep6)
 
       tree.resolve(function (err, resolved) {
@@ -412,9 +447,15 @@ describe('nject', function () {
       });
     });
 
+    /*
+      This test should be written so that it makes sure no 'timeout' error
+      is thrown, instead of just resolving after a 'really long time'
+      because it proves only that it eventually resolves, not that nothing
+      else has gone wrong.
+     */
     it('if timeout is < 0, resolution will never timeout', function (done) {
-      tree.register('dep6', dep6)
       tree._asyncTimeout = 0
+      tree.register('dep6', depTimeout(100))
 
       tree.resolve(function (err, resolved) {
         resolved.dep6.should.equal(6)
@@ -434,17 +475,21 @@ describe('nject', function () {
 
     it('will not continue to resolve dependencies if it breaks', function (done) {
       var gotCalled = false;
+      tree._asyncTimeout = 100
       tree.register('dep7', dep7);
       tree.register('dep8', function (dep7) {
         gotCalled = true;
       });
+
+      // Simple gaurantee that the timeout exceeds the internal tree asyncTimeout interval
+      var excessTimeout = tree._asyncTimeout + 100;
 
       tree.resolve(function (err, resolved) {
         err.should.be.an.instanceOf(Error)
         setTimeout(function () {
           gotCalled.should.equal(false);
           done()
-        }, 1000)
+        }, excessTimeout);
       });
     });
 
