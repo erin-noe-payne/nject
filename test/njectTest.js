@@ -359,6 +359,32 @@ describe('nject', function () {
       });
     });
 
+    it('supports multiple aggregation', function(done) {
+      tree.constant('config', config);
+      tree.constant('stats', stats);
+      tree.register('dep1', dep1, {
+        aggregateOn: ['numbers', 'stuff'],
+        identifier : 'dep1'
+      });
+      tree.register('dep2', dep2, {
+        aggregateOn: ['junk', 'numbers'],
+        identifier : 'dep2'
+      });
+      tree.register('dep3', function (numbers, stuff, junk) {
+        numbers.dep1.should.equal(1);
+        numbers.dep2.should.equal(2);
+        stuff.dep1.should.equal(1);
+        should.not.exist(stuff.dep2);
+        junk.dep2.should.equal(2);
+        should.not.exist(junk.dep1);
+      });
+
+      tree.resolve(function (err, resolved) {
+        done()
+      });
+
+    });
+
     it('emits an error event when registering a constant after resolution has begun', function (done) {
       tree.constant('config', config);
       tree.register('dep1', dep1);

@@ -6,7 +6,7 @@ var logger = { log: console.log };
 var opts   = { logger: logger   };
 
 
-describe('deep tree', function() {
+xdescribe('deep tree', function() {
 
 //  beforeEach(function() {
 //    nject.Tree.prototype._asyncTimeout    = 500;
@@ -151,7 +151,7 @@ describe('deep tree', function() {
 
     })
 
-    it.only("should 'debug' log when an injectable throws an error during injection", function(done) {
+    it("should 'debug' log when an injectable throws an error during injection", function(done) {
       var cHasError = 1;
       var tree = new nject.Tree();
       tree.on('info', function(msg) {
