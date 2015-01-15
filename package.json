@@ -2,6 +2,7 @@
   "name": "nject",
   "version": "1.3.2",
   "main": "./lib/nject",
+  "keywords": ["di", "dependency injection"],
   "repository": "https://github.com/autoric/nject",
   "engines": {
     "node": ">= 0.10.0"
