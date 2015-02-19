@@ -124,7 +124,7 @@ describe('nject', function () {
     it('registers a constant value', function () {
       tree.constant('config', config);
       should.exist(tree._registry.config)
-      tree._registry.config.fn.should.equal(config)
+      tree._registry.config.value.should.equal(config)
     });
 
     it('the registered constant should have no dependencies', function () {
@@ -140,9 +140,9 @@ describe('nject', function () {
 
       tree.constant(constants)
       should.exist(tree._registry.config)
-      tree._registry.config.fn.should.equal(config)
+      tree._registry.config.value.should.equal(config)
       should.exist(tree._registry.stats)
-      tree._registry.stats.fn.should.equal(stats)
+      tree._registry.stats.value.should.equal(stats)
     });
   });
 
@@ -151,7 +151,7 @@ describe('nject', function () {
     it('adds the given function to the registry', function () {
       tree.register('dep1', dep1)
       should.exist(tree._registry.dep1)
-      tree._registry.dep1.fn.should.equal(dep1)
+      tree._registry.dep1.value.should.equal(dep1)
     });
 
     it('parses the function\'s arguments as dependencies', function () {
@@ -172,16 +172,16 @@ describe('nject', function () {
 
       tree.register(fns)
       should.exist(tree._registry.dep1)
-      tree._registry.dep1.fn.should.equal(dep1)
+      tree._registry.dep1.value.should.equal(dep1)
       should.exist(tree._registry.dep2)
-      tree._registry.dep2.fn.should.equal(dep2)
+      tree._registry.dep2.value.should.equal(dep2)
     });
 
     it('Overwrites with a new value on naming collision', function () {
       tree.register('dep1', dep1);
       tree.register('dep1', dep2);
 
-      tree._registry.dep1.fn.should.equal(dep2)
+      tree._registry.dep1.value.should.equal(dep2)
     });
   });
 
@@ -209,29 +209,7 @@ describe('nject', function () {
     })
   });
 
-  describe.only('_getResolutionOrder', function(){
-    beforeEach(function(){
-      tree.constant('config', config)
-      tree.constant('stats', stats)
-      tree.register('dep0', dep0)
-      tree.register('dep1', dep1)
-      tree.register('dep2', dep2)
-      tree.register('dep3', dep3)
-      tree.register('dep4', dep4)
-      tree.register('badDep', badDep)
-      tree.register('circ1', circ1)
-      tree.register('circ2', circ2)
-      tree.register('blocked1', blocked1)
-    })
-
-
-    it('should do stuff', function(){
-      tree.resolve('circ1')
-    })
-
-  })
-
-  xdescribe('resolve', function () {
+  describe('resolve', function () {
     it('returns the tree', function () {
       var returned = tree.resolve()
       returned.should.equal(tree);
