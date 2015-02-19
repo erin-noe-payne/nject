@@ -2,7 +2,10 @@
   "name": "nject",
   "version": "1.3.2",
   "main": "./lib/nject",
-  "keywords": ["di", "dependency injection"],
+  "keywords": [
+    "di",
+    "dependency injection"
+  ],
   "repository": "https://github.com/autoric/nject",
   "engines": {
     "node": ">= 0.10.0"
@@ -12,7 +15,9 @@
   },
   "devDependencies": {
     "mocha": "~1.9.0",
-    "should": "~1.2.2"
+    "sinon": "~1.12.2",
+    "sinon-chai": "~2.7.0",
+    "chai": "~2.0.0"
   },
   "scripts": {
     "test": "mocha test -w -r should --growl --reporter spec"
