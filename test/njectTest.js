@@ -341,6 +341,7 @@ describe('nject', function () {
         expect(instance.stats).to.equal(stats);
         expect(instance.calculate).to.be.a('function');
         expect(instance.calculate()).to.equal(3);
+        expect(instance.constructor).to.equal(ctor)
       });
     });
 
