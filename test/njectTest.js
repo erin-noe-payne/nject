@@ -1,4 +1,5 @@
-var nject = require('../'),
+var _ = require('lodash'),
+  nject = require('../'),
   chai = require('chai'),
   sinon = require('sinon'),
   sinonChai = require('sinon-chai')
@@ -403,32 +404,83 @@ describe('nject', function () {
 
     describe('destruction', function(){
       var spy;
+
       beforeEach(function(){
         spy = sinon.spy();
 
-        tree.register('destuctoid', function(){
+        tree.register('destructoid', function(){
           this.on('destroy', spy);
         });
       });
 
-      it('should not destroy the context of an unresolved dependency if it is registered-over', function(){
+      it('registering over a key should cause that key to be `destroy`ed', function(){
+        sinon.stub(tree, 'destroy');
+
         tree.register('destructoid', function(){})
+
+        expect(tree.destroy).to.have.been.called;
+        expect(tree.destroy).to.have.been.calledWith('destructoid');
+
+        tree.destroy.restore()
+      });
+
+      it('should not destroy the context of an unresolved dependency if it is `destroy`ed', function(){
+        tree.destroy('destructoid', function(){})
 
         expect(spy).to.not.have.been.called
       });
 
-      it('should destroy the context of a resolved dependency if it is registered-over', function(){
-        tree.resolve('destuctoid');
-        tree.register('destuctoid', function(){});
+      it('should destroy the context of a resolved dependency if it is `destroy`ed', function(){
+        tree.resolve('destructoid');
 
-        expect(spy).to.have.been.calledOnce
+        tree.destroy('destructoid');
+
+        expect(spy).to.have.been.called
       });
 
       it('should destroy all contexts if the tree is destroyed', function(){
         tree.resolve();
-
         tree.destroy();
+
         expect(spy).to.have.been.calledOnce;
+      });
+
+      it('should destroy all parent dependencies of a `destroy`ed dependency', function(){
+        var spies = []
+        for(var i = 0; i< 5; i++) {
+          spies.push(sinon.spy());
+        }
+
+        var d0 = function(){
+          this.on('destroy', spies[0])
+        }
+        var d1 = function(d0){
+          this.on('destroy', spies[1])
+        }
+        var d2 = function(d0){
+          this.on('destroy', spies[2])
+        }
+        var d3 = function(d1){
+          this.on('destroy', spies[3])
+        }
+        var d4 = function(d3){
+          this.on('destroy', spies[4])
+        }
+
+        tree.register({
+          d0:d0,
+          d1:d1,
+          d2:d2,
+          d3:d3,
+          d4:d4
+        });
+
+        tree.resolve();
+
+        tree.destroy('d0');
+        _.each(spies, function(spy){
+          expect(spy).to.have.been.calledOnce;
+        });
       });
     });
 

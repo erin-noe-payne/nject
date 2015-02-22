@@ -89,6 +89,8 @@ Resolve will throw an error if it encounters an unregistered dependency or circu
 
 Clears the resolved value for the provided key from the cache and emits the `destroy` event on the context of the factory function. If no key is provided, invokes destroy for all registered keys.
 
+Think of this as the inverse of `resolve`. When a dependency is destroyed, any other resolved value that depended on it is also destroyed. This cascades, so that anything that had the provided key on its resolution path will be destroyed.
+
  - [**key**] *String* Registered dependency key.
 
 ## Events
