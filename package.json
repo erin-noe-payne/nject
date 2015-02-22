@@ -20,6 +20,6 @@
     "chai": "~2.0.0"
   },
   "scripts": {
-    "test": "mocha test -w -r should --growl --reporter spec"
+    "test": "mocha test -w --growl --reporter spec"
   }
 }

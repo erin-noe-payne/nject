@@ -238,7 +238,7 @@ describe('nject', function () {
         tree.resolve();
       }
 
-      doResolve.should.throw()
+      expect(doResolve).to.throw('Detected unregistered dependency `asdf`')
     });
 
     it('resolves correctly with a single constant dependency', function () {
