@@ -46,8 +46,8 @@ This function just passes through to `register` with the constant option set to 
 tree.constant('a', 7)
 tree.constant('a', 7', {aggregateOn: 'numbers'})
 tree.constant({
-b: 8,
-c: 9
+    b: 8,
+    c: 9
 }, {aggregateOn: 'numbers'})
 ```
 
@@ -324,6 +324,10 @@ How do you know when the destroy event will be triggered?
  - If you explicitly destroy the dependency using `tree.destroy('dbConnectionPool')` or the more broad `tree.destroy()`. This will cause the cached value to be cleared, and will fire the destroy event to force cleanup. Invoking the destroy method on a dependency that has never been resolved will have no effect.
 
 ## Changelog
+
+### 2.0.1
+
+ - Adds support for dependency detection and inject with es6 arrow functions
 
 ### 2.0.0
 
