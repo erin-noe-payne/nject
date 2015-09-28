@@ -126,6 +126,16 @@ describe('nject', function () {
     });
 
     it('parses the function\'s arguments as dependencies', function () {
+      tree.register('dep0', dep0);
+      tree.register('dep1', dep1);
+      tree.register('dep2', dep2);
+
+      expect(tree._registry.dep0.dependencies).to.eql([]);
+      expect(tree._registry.dep1.dependencies).to.eql(['config']);
+      expect(tree._registry.dep2.dependencies).to.eql(['config', 'stats']);
+    });
+
+    it('parses arrow functions and registers arguments as dependencies' , function () {
       tree.register('dep5', dep5);
       tree.register('dep6', dep6);
       tree.register('dep7', dep7);
@@ -135,16 +145,6 @@ describe('nject', function () {
       expect(tree._registry.dep6.dependencies).to.eql(['dep3']);
       expect(tree._registry.dep7.dependencies).to.eql(['dep3']);
       expect(tree._registry.dep8.dependencies).to.eql(['dep3', 'dep4']);
-    });
-
-    it('parses arrow functions and registers arguments as dependencies' , function () {
-      tree.register('dep0', dep0);
-      tree.register('dep1', dep1);
-      tree.register('dep2', dep2);
-
-      expect(tree._registry.dep0.dependencies).to.eql([]);
-      expect(tree._registry.dep1.dependencies).to.eql(['config']);
-      expect(tree._registry.dep2.dependencies).to.eql(['config', 'stats']);
     });
 
     it('given an object, registers each key value pair as a constant', function () {
