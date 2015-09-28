@@ -51,6 +51,32 @@ describe('nject', function () {
     return 4;
   };
 
+  var dep5Args = false;
+  var dep5 = () => {
+    dep5Args = arguments;
+    return 5;
+  };
+
+  var dep6Args = false;
+  var dep6 = dep3 => {
+    dep6Args = arguments;
+    return 6;
+  };
+
+  var dep7Args = false;
+  var dep7 = (dep3) => {
+    dep7Args = arguments;
+    return 7;
+  };
+
+  var dep8Args = false;
+  var dep8 = (dep3, dep4) => {
+    dep8Args = arguments;
+    return 8;
+  };
+
+
+
   var badDep = function (asdf) {
   };
   var circ1 = function (circ2) {
@@ -100,6 +126,18 @@ describe('nject', function () {
     });
 
     it('parses the function\'s arguments as dependencies', function () {
+      tree.register('dep5', dep5);
+      tree.register('dep6', dep6);
+      tree.register('dep7', dep7);
+      tree.register('dep8', dep8);
+
+      expect(tree._registry.dep5.dependencies).to.eql([]);
+      expect(tree._registry.dep6.dependencies).to.eql(['dep3']);
+      expect(tree._registry.dep7.dependencies).to.eql(['dep3']);
+      expect(tree._registry.dep8.dependencies).to.eql(['dep3', 'dep4']);
+    });
+
+    it('parses arrow functions and registers arguments as dependencies' , function () {
       tree.register('dep0', dep0);
       tree.register('dep1', dep1);
       tree.register('dep2', dep2);
