@@ -214,39 +214,42 @@ tree.register('UserCtrl', function(database){
     var User = {
         get : function(id){
             database.find(id)
-        }
+        },
         create : function(instance){
             database.create(instance)
-        }
+        },
         update : function(instance){
             database.update(instance)
-        }
+        },
         destroy : function(instance){
             database.destroy(instance)
-        }
-    }
+        },
+    };
 
     return User;
-
 });
 
 
 // using a class
 var UserCtrl = function(database){
     this.database = database;
-}
+};
+
 UserCtrl.prototype.get = function(id){
     this.database.find(id);
-}
+};
+
 UserCtrl.prototype.create = function(instance){
     this.database.create(instance);
-}
+};
+
 UserCtrl.prototype.update = function(instance){
     this.database.update(instance);
-}
+};
+
 UserCtrl.prototype.destroy = function(instance){
     this.database.destroy(instance);
-}
+};
 
 tree.register('UserCtrl', UserCtrl);
 ```
