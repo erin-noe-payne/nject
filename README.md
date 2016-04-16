@@ -21,7 +21,7 @@ tree.register('sum',
         return a+b;
     });
 
-tree.resolve('sum') == 16
+tree.resolve('sum') == 16;
 ```
 
 ##Api
@@ -43,12 +43,12 @@ This function just passes through to `register` with the constant option set to 
  - **opts** See `register`
 
 ```javascript
-tree.constant('a', 7)
-tree.constant('a', 7', {aggregateOn: 'numbers'})
+tree.constant('a', 7);
+tree.constant('a', 7, {aggregateOn: 'numbers'});
 tree.constant({
     b: 8,
     c: 9
-}, {aggregateOn: 'numbers'})
+}, {aggregateOn: 'numbers'});
 ```
 
 #### tree.register(key, value, [opts])
@@ -112,7 +112,7 @@ The tree will emit warning messages when actions are taken which are legal, but 
 Given the following tree...
 
 ```javascript
-tree = new nject.Tree()
+var tree = new nject.Tree();
 
 // Register a configuration object
 tree.constant('config', {
@@ -142,7 +142,7 @@ tree.resolve('User');
 
 tree.resolve('Account');
 
-resolved = tree.resolve()
+var resolved = tree.resolve();
 ```
 
 When we resolve User, the tree will also resolve database and config, which are dependencies on the resolution path, and their resolved values will be cached.  The tree will NOT resolve Account, because it was not a dependency of User.
@@ -173,8 +173,8 @@ In this example, we have several controllers, that we are aggregating on the con
 
 Note that the aggregation key is a valid dependency key, and it can be resolved directly:
 
-```javacript
-controllers = tree.resolve('controllers');
+```javascript
+var controllers = tree.resolve('controllers');
 ```
 
 In addition, dependencies may be aggregated on multiple aggregation keys using an array. Extending the previous example:
@@ -195,10 +195,10 @@ tree.register('Router', function(app, controllers){
     });
 });
 
-tree.resolve('controllers')
+tree.resolve('controllers');
 // resolves to the controllers objects
 
-tree.resolve('User')
+tree.resolve('User');
 // resolves to the UserModel and UserController
 ```
 
@@ -236,16 +236,16 @@ var UserCtrl = function(database){
     this.database = database;
 }
 UserCtrl.prototype.get = function(id){
-    this.database.find(id)
+    this.database.find(id);
 }
 UserCtrl.prototype.create = function(instance){
-    this.database.create(instance)
+    this.database.create(instance);
 }
 UserCtrl.prototype.update = function(instance){
-    this.database.update(instance)
+    this.database.update(instance);
 }
 UserCtrl.prototype.destroy = function(instance){
-    this.database.destroy(instance)
+    this.database.destroy(instance);
 }
 
 tree.register('UserCtrl', UserCtrl);
@@ -281,12 +281,13 @@ var logger2 = function(){
 
     this.on('destroy', function(){
         this.cleanup();
-    })'
-}
+    });
+};
 
 logger2.prototype.cleanup = function(){
     clearInterval(this.interval);
-}
+};
+
 tree.register('logger2', logger2);
 
 // ex3
@@ -305,7 +306,7 @@ Here we have 3 examples of registered dependencies that need to do some sort of 
 
 beforeEach(function(){
     tree.resolve('logger');
-})
+});
 
 afterEach(function(){
     tree.destroy('logger');
